@@ -4,16 +4,7 @@ from pyvi import ViTokenizer
 import string
 import re
 
-if tf.test.is_gpu_available():
-    print('Using GPU LSTM')
-    lstm_layer = tf.keras.layers.CuDNNLSTM
-else:
-    print('Using CPU LSTM')
-    import functools
-
-    lstm_layer = functools.partial(
-        tf.keras.layers.LSTM, recurrent_activation='sigmoid')
-
+lstm_layer = tf.keras.layers.LSTM
 
 class SentimentAnalysisModel(tf.keras.Model):
     """
@@ -64,11 +55,17 @@ class SentimentAnalysisModel(tf.keras.Model):
 
         self.dense_layer = tf.keras.layers.Dense(num_classes, activation='softmax', name="dense_0")
 
+
     def call(self, inputs):
+
+        # Thực hiện các bước biến đổi khi truyền thuận input qua mạng
+        inputs = tf.cast(inputs, tf.int32)
+        # Input hiện là indices, cần chuyển sang dạng vector
+        inputs = tf.nn.embedding_lookup(self.word2vec, inputs)
+
         for i in range(len(self.lstm_layers)):
             inputs = self.lstm_layers[i](inputs)
             inputs = self.dropout_layers[i](inputs)
-        # Gán giá trị tầng cuối cùng vào out và trả về
         out = self.dense_layer(inputs)
         return out
 
@@ -143,8 +140,8 @@ def predict(sentence, model, _word_list, _max_seq_length, word2idx):
     tokenized_sent = clean_document(sentence)
     tokenized_sent = ' '.join(tokenized_sent)
     input_data = get_sentence_indices(clean_sentences(tokenized_sent), _max_seq_length, _word_list, word2idx)
-    input_data = input_data.reshape(1, _max_seq_length).astype(tf.float32)
+    input_data = input_data.reshape(-1, _max_seq_length)
     predictions = model(input_data)
-    predictions = tf.argmax(predictions, 1).numpy().astype(np.int32)
+    predictions = tf.argmax(predictions, 1)[0].numpy().astype(np.int32)
 
-    return predictions[0]
+    return predictions
