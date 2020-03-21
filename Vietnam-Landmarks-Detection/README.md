@@ -1,3 +1,2 @@
-# Project: Sử dụng CNN để phát hiện địa danh Việt Nam 
-
+# Project: Using CNN to Detection Vietnam Landmarks
 
