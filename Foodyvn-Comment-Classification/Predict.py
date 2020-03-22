@@ -20,15 +20,16 @@ word2idx = {w: i for i, w in enumerate(words_list)}
 
 MAX_SEQ_LENGTH = 230
 LSTM_UNITS = 128
-N_LAYERS = 1
+N_LAYERS = 2
 NUM_CLASSES = 2
 
-model = functions.SentimentAnalysisModel(word_vectors, LSTM_UNITS, N_LAYERS, NUM_CLASSES)
+model = functions.SentimentAnalysisModel(
+    word_vectors, LSTM_UNITS, N_LAYERS, NUM_CLASSES)
 model.build((1, MAX_SEQ_LENGTH))
 
 model.load_weights('model_saved/model.h5')
 # model.summary()
 
-sentence = "Quán này ăn ngon!"
+sentence = "Quán này ăn rất là ngon."
 f = functions.predict(sentence, model, words_list, MAX_SEQ_LENGTH, word2idx)
 print(f)
