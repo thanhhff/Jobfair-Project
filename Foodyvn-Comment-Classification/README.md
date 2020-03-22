@@ -13,7 +13,7 @@ The process of combining index matrix and word embeddings into data tensor for t
 ### Model 
 
 The LSTM network architecture we will use in this exercise is described below. To increase the complexity of the model, we overlap LSTM layers (Stacked LSTM layers). Between the lower LSTM layer and the upper LSTM layer, we place a dropout layer.
-![model](Imgaes/model.png)
+![model](Images/model.png)
 
 ### Training
 
