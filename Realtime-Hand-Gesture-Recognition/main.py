@@ -61,7 +61,7 @@ if __name__ == "__main__":
     from matplotlib.pyplot import imshow
 
     # load weights into new model
-    loaded_model.load_weights("model-weight/model2.h5")
+    loaded_model.load_weights("model-weight/model_91_6.h5")
     print("\nLoaded model from disk\n")
     loaded_model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
@@ -71,7 +71,8 @@ if __name__ == "__main__":
     camera = cv2.VideoCapture(0)
 
     # region of interest (ROI) coordinates
-    top, right, bottom, left = 10, 350, 250, 590
+    # top, right, bottom, left = 50, 400, 300, 650
+    top, right, bottom, left = 50, 50, 300, 300
 
     # initialize num of frames
     num_frames = 0
@@ -119,12 +120,13 @@ if __name__ == "__main__":
             if hand is not None:
                 (thresholded, segmented) = hand
                 # draw the segmented region and display the frame
-                cv2.drawContours(clone, [segmented + (right, top)], -1, (0, 0, 255))
+                # cv2.drawContours(clone, [segmented + (right, top)], -1, (0, 0, 255))
 
                 # count the number of fingers
                 fingers = count(thresholded, segmented)
                 print(fingers)
-                cv2.putText(clone, str(fingers), (200, 45), cv2.FONT_HERSHEY_DUPLEX, 1, (255, 0, 255), 2)
+                # cv2.putText(clone, "Predict: " + str(fingers), (430, 35), cv2.FONT_HERSHEY_DUPLEX, 1, (255, 0, 255), 2)
+                cv2.putText(clone, "Predict: " + str(fingers), (80, 35), cv2.FONT_HERSHEY_DUPLEX, 1, (255, 0, 255), 2)
 
                 # show the thresholded image
                 cv2.imshow("Thesholded", thresholded)

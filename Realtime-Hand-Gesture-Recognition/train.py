@@ -1,3 +1,5 @@
+from keras.utils import np_utils
+from keras_preprocessing.image import ImageDataGenerator
 from data_processing import *
 from keras import layers
 from keras import models
@@ -10,10 +12,22 @@ X_train_orig, Y_train_orig, X_test_orig, Y_test_orig, classes = load_dataset()
 m_train = Y_train_orig.shape[1]
 m_test = Y_test_orig.shape[1]
 
-X_train_cup_background = X_train_orig.copy()
-X_test_cup_background = X_test_orig.copy()
+# num_classes = 6
+# y_train = np_utils.to_categorical(Y_train_orig, num_classes)
+# y_test = np_utils.to_categorical(Y_test_orig, num_classes)
+# print("Y_train.shape: ", y_train.shape)
 
-# Cup background X_tran
+datagen = ImageDataGenerator(
+    rescale=1. / 255,
+    rotation_range=40,
+    width_shift_range=0.2,
+    height_shift_range=0.2,
+    shear_range=0.2,
+    zoom_range=0.2,
+    horizontal_flip=True,
+    fill_mode='nearest')
+
+# Cup background X_train
 
 X_train = np.zeros(shape=(m_train, 64, 64, 1))
 X_test = np.zeros(shape=(m_test, 64, 64, 1))
@@ -26,13 +40,11 @@ for i in range(m_test):
     X_test_cup_background[i] = cup_background(X_test_orig[i])
     X_test[i] = cv2.cvtColor(X_test_cup_background[i], cv2.COLOR_BGR2GRAY).reshape(64, 64, 1)
 
-# Normalize image vectors
-X_train = X_train / 255.
-X_test = X_test / 255.
-
 # Convert training and test labels to one hot matrices
 Y_train = convert_to_one_hot(Y_train_orig, 6).T
 Y_test = convert_to_one_hot(Y_test_orig, 6).T
+
+datagen.fit(X_train)
 
 ### End: Data Processing
 
@@ -66,8 +78,12 @@ model.compile(optimizer='adam',
               loss='categorical_crossentropy',
               metrics=['accuracy'])
 
-EPOCHS = 15
-model.fit(X_train, Y_train, epochs=EPOCHS, batch_size=32)
+epochs = 25
+model.fit_generator(datagen.flow(X_train, Y_train, batch_size=32),
+                    steps_per_epoch=len(X_train) / 32, epochs=epochs)
+
+# EPOCHS = 15
+# model.fit(X_train, Y_train, epochs=EPOCHS, batch_size=32)
 
 ### End: Train Model
 
